@@ -74,7 +74,17 @@ public class NmeaFragment extends Fragment implements Gps.OnUpdateListener {
 
     @Override
     public void onUpdate(String nmea, long timestamp) {
-        addNMEA(nmea);
+        addNMEA(trimNMEA(nmea));
+    }
+
+    private String trimNMEA(String nmea) {
+        if(nmea.length() <= 2) { return nmea;}
+
+        // remove "$GP"
+        nmea = nmea.substring(3, nmea.length());
+        // remove checksum
+        nmea = nmea.substring(0, nmea.length() - 6) + "\n";
+        return nmea;
     }
 
     public void addNMEA(String message) {
