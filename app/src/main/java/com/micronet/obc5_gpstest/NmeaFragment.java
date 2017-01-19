@@ -1,10 +1,10 @@
 package com.micronet.obc5_gpstest;
 
-import android.app.PendingIntent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,8 @@ import android.widget.TextView;
  *
  * A fragment that displays the NMEA
  */
-public class NmeaFragment extends Fragment implements Gps.OnUpdateListener {
+public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
+    private final String TAG = "NmeaFragment";
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -45,11 +46,12 @@ public class NmeaFragment extends Fragment implements Gps.OnUpdateListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gps = Gps.get(getActivity());
-        gps.setOnUpdateListener(this);
+        gps.setOnNmeaUpdateListener(this);
     }
 
     @Override
     public void onPause() {
+        Log.d(TAG, "onPause");
         super.onPause();
         if (gps != null) {
             gps.removeLocationListener();
@@ -59,13 +61,15 @@ public class NmeaFragment extends Fragment implements Gps.OnUpdateListener {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
         gps = Gps.get(getActivity());
-        gps.setOnUpdateListener(this);
+        gps.setOnNmeaUpdateListener(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop");
         if (gps != null) {
             gps.removeLocationListener();
         }
@@ -73,11 +77,11 @@ public class NmeaFragment extends Fragment implements Gps.OnUpdateListener {
 
 
     @Override
-    public void onUpdate(String nmea, long timestamp) {
-        addNMEA(trimNMEA(nmea));
+    public void onNmeaUpdate(String nmea, long timestamp) {
+        addNMEA(trimNMEASentence(nmea));
     }
 
-    private String trimNMEA(String nmea) {
+    private String trimNMEASentence(String nmea) {
         if(nmea.length() <= 2) { return nmea;}
 
         // remove "$GP"

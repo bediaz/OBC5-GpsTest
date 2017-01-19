@@ -27,7 +27,7 @@ public class Gps implements LocationListener {
     private NmeaListener nmeaListener = null;
     private OnNmeaListener onNmeaListener = null;
 
-    private OnUpdateListener onUpdateListener;
+    private OnNmeaUpdateListener onNmeaUpdateListener;
 
     public Gps() {
     }
@@ -45,12 +45,12 @@ public class Gps implements LocationListener {
         addLocationListener(appContext);
     }
 
-    public void setOnUpdateListener(Fragment fragment) {
-        this.onUpdateListener = (OnUpdateListener) fragment;
+    public void setOnNmeaUpdateListener(Fragment fragment) {
+        this.onNmeaUpdateListener = (OnNmeaUpdateListener) fragment;
     }
 
-    public interface OnUpdateListener {
-        void onUpdate(String nmea, long timestamp);
+    public interface OnNmeaUpdateListener {
+        void onNmeaUpdate(String nmea, long timestamp);
     }
 
     private void addLocationListener(Context appContext) {
@@ -86,8 +86,8 @@ public class Gps implements LocationListener {
         @Override
         public void onNmeaReceived(long timestamp, String nmea) {
             Log.i(TAG, String.format("T:%d, %s", timestamp, nmea));
-            if(onUpdateListener != null) {
-                onUpdateListener.onUpdate(nmea, timestamp);
+            if(onNmeaUpdateListener != null) {
+                onNmeaUpdateListener.onNmeaUpdate(nmea, timestamp);
             }
         }
     }
@@ -97,8 +97,8 @@ public class Gps implements LocationListener {
         @Override
         public void onNmeaMessage(String nmea, long timestamp) {
             Log.i(TAG, String.format("T:%d, %s", timestamp, nmea));
-            if(onUpdateListener != null) {
-                onUpdateListener.onUpdate(nmea, timestamp);
+            if(onNmeaUpdateListener != null) {
+                onNmeaUpdateListener.onNmeaUpdate(nmea, timestamp);
             }
         }
     }
