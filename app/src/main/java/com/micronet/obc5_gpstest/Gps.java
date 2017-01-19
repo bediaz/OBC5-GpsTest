@@ -35,6 +35,8 @@ public class Gps implements LocationListener {
     public static Gps get(Context appContext) {
         if (gps == null) {
             gps = new Gps(appContext.getApplicationContext());
+        } else if(gps.locationManager == null) {
+            gps.addLocationListener(appContext);
         }
         return gps;
     }
@@ -48,7 +50,7 @@ public class Gps implements LocationListener {
     }
 
     public interface OnUpdateListener {
-        public void onUpdate(String nmea, long timestamp);
+        void onUpdate(String nmea, long timestamp);
     }
 
     private void addLocationListener(Context appContext) {
@@ -66,14 +68,16 @@ public class Gps implements LocationListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if(onNmeaListener == null) {
                 onNmeaListener = new OnNmeaListener();
-                this.locationManager.addNmeaListener(onNmeaListener);
+                nmeaResult =  locationManager.addNmeaListener(onNmeaListener);
             }
         } else {
             if(nmeaListener == null) {
                 nmeaListener = new NmeaListener();
-                this.locationManager.addNmeaListener(nmeaListener);
+                nmeaResult = locationManager.addNmeaListener(nmeaListener);
             }
         }
+
+        Log.i(TAG, "Requesting NMEA Updates " + (nmeaResult ? "Successful" : "Failed"));
     }
 
 
@@ -100,20 +104,22 @@ public class Gps implements LocationListener {
     }
 
     public void removeLocationListener() {
-        if (this.locationManager != null) {
+        if (locationManager != null) {
             try {
                 // remove locaiton listener
-                this.locationManager.removeUpdates(this);
+                locationManager.removeUpdates(this);
                 // remove nmea listener
                 if(nmeaListener != null) {
-                    this.locationManager.removeNmeaListener(nmeaListener);
+                    locationManager.removeNmeaListener(nmeaListener);
+                    nmeaListener = null;
                 } else if(onNmeaListener != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    this.locationManager.removeNmeaListener(onNmeaListener);
+                    locationManager.removeNmeaListener(onNmeaListener);
+                    onNmeaListener = null;
                 }
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
-            this.locationManager = null;
+            locationManager = null;
             Log.i(TAG, "Deregistered Location Listener");
         }
     }
