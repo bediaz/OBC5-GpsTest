@@ -10,10 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Created by brigham.diaz on 1/18/2017.
  */
@@ -29,7 +25,7 @@ public class LocationFragment extends Fragment implements Gps.OnLocationUpdateLi
     private TextView txtSatellites;
     private FloatingActionButton fab;
     private volatile boolean updateUI = true;
-    private Gps nmeaListener;
+    private Gps gps;
 
     public LocationFragment() {
     }
@@ -55,27 +51,25 @@ public class LocationFragment extends Fragment implements Gps.OnLocationUpdateLi
     public void onPause() {
         Log.d(TAG, "onPause");
         super.onPause();
-        if (nmeaListener != null) {
-            nmeaListener.removeLocationListener();
-        }
+        gps.removeGpsStatusListener(this);
+        gps.removeLocationUpdateListener(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-        nmeaListener = Gps.get(getActivity());
-        nmeaListener.setOnGpsStatusListeners(this);
-        nmeaListener.setOnLocationUpdateListeners(this);
+        gps = Gps.get(getActivity());
+        gps.setOnGpsStatusListeners(this);
+        gps.setOnLocationUpdateListeners(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
-        if (nmeaListener != null) {
-            nmeaListener.removeLocationListener();
-        }
+        gps.removeGpsStatusListener(this);
+        gps.removeLocationUpdateListener(this);
     }
 
     public void addNMEA(String sentence) {

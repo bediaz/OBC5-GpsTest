@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        String versionName = BuildConfig.VERSION_NAME;
+        toolbar.setTitle("OBC5 GPS Test " + versionName);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
         Intent service = new Intent(this, GpsBackgroundService.class);
         startService(service);
+
+
     }
 
 

@@ -25,7 +25,7 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
     private TextView textView;
     private FloatingActionButton fab;
     private volatile boolean updateUI = true;
-    private Gps nmeaListener;
+    private Gps gps;
 
     public NmeaFragment() {
     }
@@ -51,26 +51,22 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
     public void onPause() {
         Log.d(TAG, "onPause");
         super.onPause();
-        if (nmeaListener != null) {
-            nmeaListener.removeLocationListener();
-        }
+        gps.removeNmeaUpdateListener(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-        nmeaListener = Gps.get(getActivity());
-        nmeaListener.setOnNmeaUpdateListeners(this);
+        gps = Gps.get(getActivity());
+        gps.setOnNmeaUpdateListeners(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
-        if (nmeaListener != null) {
-            nmeaListener.removeLocationListener();
-        }
+        gps.removeNmeaUpdateListener(this);
     }
 
 
@@ -143,7 +139,5 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
         fab.setOnClickListener(fabNmeaUIStatusClick);
         return rootView;
     }
-
-
 }
 

@@ -32,10 +32,14 @@ public class Gps implements LocationListener, GpsStatus.Listener {
     private LocationManager locationManager = null;
     private NmeaListener nmeaListener = null;
 
-    private List<OnNmeaUpdateListener> onNmeaUpdateListeners = new ArrayList<>();
-    private List<OnLocationUpdateListener> onLocationUpdateListeners = new ArrayList<>();
-    private List<OnGpsStatusListener> onGpsStatusListeners = new ArrayList<>();
+    // allow multiple listeners for the following events
+    private List<OnNmeaUpdateListener> onNmeaUpdateListeners;
+    private List<OnLocationUpdateListener> onLocationUpdateListeners;
+    private List<OnGpsStatusListener> onGpsStatusListeners;
 
+    /**
+     * required default constructor
+     */
     public Gps() {
     }
 
@@ -49,9 +53,14 @@ public class Gps implements LocationListener, GpsStatus.Listener {
     }
 
     private Gps(Context appContext) {
+        onNmeaUpdateListeners = new ArrayList<>();
+        onLocationUpdateListeners = new ArrayList<>();
+        onGpsStatusListeners = new ArrayList<>();
         addLocationListener(appContext);
+
     }
 
+    /// Start Event handlers
     public void setOnNmeaUpdateListeners(Fragment fragment) {
         onNmeaUpdateListeners.add((OnNmeaUpdateListener) fragment);
     }
@@ -76,9 +85,53 @@ public class Gps implements LocationListener, GpsStatus.Listener {
         onGpsStatusListeners.add((OnGpsStatusListener) fragment);
     }
 
+    public void removeLocationUpdateListener(Fragment fragment) {
+        onLocationUpdateListeners.remove((OnLocationUpdateListener)fragment);
+        if(!keepGpsListenerAlive()) {
+            removeLocationListener();
+        }
+    }
+
+    public void removeLocationUpdateListener(Service service) {
+        onLocationUpdateListeners.remove((OnLocationUpdateListener)service);
+        if(!keepGpsListenerAlive()) {
+            removeLocationListener();
+        }
+    }
+
+    public void removeGpsStatusListener(Fragment fragment) {
+        onGpsStatusListeners.remove((OnGpsStatusListener)fragment);
+        if(!keepGpsListenerAlive()) {
+            removeLocationListener();
+        }
+    }
+
+    public void removeGpsStatusListener(Service service) {
+        onGpsStatusListeners.remove((OnGpsStatusListener)service);
+        if(!keepGpsListenerAlive()) {
+            removeLocationListener();
+        }
+    }
+
+    public void removeNmeaUpdateListener(Fragment fragment) {
+        onNmeaUpdateListeners.remove((OnNmeaUpdateListener)fragment);
+        if(!keepGpsListenerAlive()) {
+            removeLocationListener();
+        }
+    }
+
+    public void removeNmeaUpdateListener(Service service) {
+        onNmeaUpdateListeners.remove((OnNmeaUpdateListener)service);
+        if(!keepGpsListenerAlive()) {
+            removeLocationListener();
+        }
+    }
+
+
     public interface OnGpsStatusListener {
         void onStatusChanged(String status);
     }
+    /// End Event handlers
 
     private void addLocationListener(Context appContext) {
         locationManager = (LocationManager) appContext.getSystemService(Context.LOCATION_SERVICE);
@@ -97,6 +150,10 @@ public class Gps implements LocationListener, GpsStatus.Listener {
             boolean nmeaResult = locationManager.addNmeaListener(nmeaListener);
             Log.i(TAG, "Requesting NMEA Updates " + (nmeaResult ? "Successful" : "Failed"));
         }
+    }
+
+    private boolean keepGpsListenerAlive() {
+        return onNmeaUpdateListeners.size() + onLocationUpdateListeners.size() + onGpsStatusListeners.size() > 0;
     }
 
     private class NmeaListener implements GpsStatus.NmeaListener {
@@ -128,17 +185,18 @@ public class Gps implements LocationListener, GpsStatus.Listener {
             try {
                 // remove location listener
                 locationManager.removeUpdates(this);
+                // remove gps status listener
+                locationManager.removeGpsStatusListener(this);
                 // remove nmea listener
-                if(nmeaListener != null) {
-                    locationManager.removeNmeaListener(nmeaListener);
-                    nmeaListener = null;
-                }
+                locationManager.removeNmeaListener(nmeaListener);
                 onNmeaUpdateListeners.clear();
                 onLocationUpdateListeners.clear();
                 onGpsStatusListeners.clear();
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
+
+
             locationManager = null;
             Log.i(TAG, "Deregistered Location Listener");
         }
@@ -207,7 +265,7 @@ public class Gps implements LocationListener, GpsStatus.Listener {
                 location.getLatitude(),
                 location.getLongitude(),
                 location.getAccuracy(),
-                formatDate(location.getTime()),
+                Utils.formatDate(location.getTime()),
                 location.getAltitude()));
         locationStr.append("VELOCITY\tPROVIDER\tBEARING\t\tPDOP\t\tHDOP\t\tVDOP\t\tMODE\n");
         locationStr.append(String.format("%06.3fm/s\t%s\t\t\t%05.2f\t\t%s\t\t%s\t\t%s\t\t%s\n",
@@ -226,11 +284,6 @@ public class Gps implements LocationListener, GpsStatus.Listener {
         }
     }
 
-    private String formatDate(long time) {
-        Date date = new Date(time);
-        DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-        return formatter.format(date);
-    }
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.i(TAG, provider);
