@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txtLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:typeface="monospace"
+        android:fontFamily="monospace"
+        android:textSize="10sp"
+        android:text="LATITUDE\t\tLONGITUDE\t\tACCURACY\tTIME\t\t\t\tALTITUDE\n00.00000\t\t-000.000000\t000.00m\t\t00:00:00\t\t0000.00m\n\nVELOCITY\n0.000000"/>
+    <TextView
+        android:id="@+id/txtSatellites"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:typeface="monospace"
+        android:fontFamily="monospace"
+        android:textSize="10sp"/>
+
+
+    <TextView
+        android:id="@+id/txtProvider"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/txtFixQuality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+</LinearLayout>
