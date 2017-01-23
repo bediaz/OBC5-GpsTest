@@ -25,7 +25,6 @@
         android:layout_width="match_parent"
         android:scrollbars="vertical"
         android:gravity="bottom"
-        android:textColor="@android:color/black"
         android:typeface="monospace"
         android:fontFamily="monospace"
         android:textSize="10sp"
@@ -36,5 +35,17 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"/>
 
+    <TextView
+        android:id="@+id/txtTimeToGetNMEA"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:typeface="monospace"
+        android:fontFamily="monospace"
+        android:background="@android:color/holo_orange_light"
+        android:text="TIME TO GET NMEA:"
+        android:textSize="12sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        />
 </RelativeLayout>
 

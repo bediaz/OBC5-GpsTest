@@ -1,6 +1,7 @@
 package com.micronet.obc5_gpstest;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
@@ -9,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 /**
  * Created by brigham.diaz on 1/18/2017.
@@ -23,9 +26,11 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
     private TextView textView;
+    private TextView txtTimeToGetNMEA;
     private FloatingActionButton fab;
     private volatile boolean updateUI = true;
     private Gps gps;
+    private long timespan;
 
     public NmeaFragment() {
     }
@@ -60,6 +65,7 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
         Log.d(TAG, "onResume");
         gps = Gps.get(getActivity());
         gps.setOnNmeaUpdateListeners(this);
+        cdt.start();
     }
 
     @Override
@@ -68,6 +74,19 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
         Log.d(TAG, "onStop");
         gps.removeNmeaUpdateListener(this);
     }
+
+    CountDownTimer cdt = new CountDownTimer(Long.MAX_VALUE, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            timespan = Long.MAX_VALUE - millisUntilFinished;
+            txtTimeToGetNMEA.setText(String.format("TIME TO GET NMEA:%s", Utils.formatTimespan(timespan)));
+        }
+
+        @Override
+        public void onFinish() {
+            txtTimeToGetNMEA.setText(String.format("TIME TO GET NMEA:%s", Utils.formatTimespan(timespan)));
+        }
+    };
 
 
     @Override
@@ -96,6 +115,9 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
     }
 
     public void addNMEA(String sentence) {
+        cdt.cancel();
+        cdt.onFinish();
+
         class OneShotTextUpdate implements Runnable {
             private String message;
 
@@ -137,7 +159,11 @@ public class NmeaFragment extends Fragment implements Gps.OnNmeaUpdateListener {
 
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(fabNmeaUIStatusClick);
+
+        txtTimeToGetNMEA = (TextView) rootView.findViewById(R.id.txtTimeToGetNMEA);
         return rootView;
     }
+
+
 }
 
